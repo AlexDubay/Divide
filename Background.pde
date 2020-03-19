@@ -11,7 +11,7 @@ public class Background implements Showable {
   }
   
   public void show() {
-    imageMode(CORNER); //<>//
+    imageMode(CORNER);
     image(img, 0, 0, width, height);
   }
 }

@@ -53,26 +53,25 @@ public class ButtonPanel implements Clickable, Animatable {
     }
   }
   
-  public void mPressed(LineDraw ld) {
-    //TODO
-  }
   
-  public boolean isClicked(LineDraw ld) {
-    for (Button b: this.buttons) {
-      if (b.isClicked(ld)) {
+  //update Clickable's texture if mouse is pressed over @this
+  public boolean mPressed(LineDraw ld) {
+    for (Clickable c: buttons) {
+      if (c.mPressed(ld)) {
         return true;
       }
     }
     return false;
   }
   
-  public Scene pushB(LineDraw ld) {
-    for (Button b: this.buttons) {
-      if (b.isClicked(ld)) {
-        return b.pushB(ld);
+  //returns if the mouse was released over @this as well as update the Clickable
+  public boolean mReleased(LineDraw ld) {
+    for (Clickable c: buttons) {
+      if (c.mReleased(ld)) {
+        return true;
       }
     }
-    return null;
+    return false;
   }
   
   public void update() {

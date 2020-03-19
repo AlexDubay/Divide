@@ -18,15 +18,6 @@ public abstract class Scene implements Animatable {
     return this.canCut;
   }
   
-  public Scene click(LineDraw ld) {
-    for (Clickable b: this.buttons) {
-      if (b.isClicked(ld)) {
-        return b.pushB(ld);
-      }
-    }
-    return null;
-  }
-  
   public void showButtons() {
     for (Clickable b: this.buttons) {
       b.show();
@@ -35,6 +26,20 @@ public abstract class Scene implements Animatable {
   
   public void update() {
     bg.update();
+  }
+  
+  //updates the scene on action mouse pressed
+  public void mPressed(LineDraw ld) {
+    for (Clickable c: buttons) {
+      if (c.mPressed(ld)) break;
+    }
+  }
+  
+  //updates the scene on action mouse released
+  public void mReleased(LineDraw ld) {
+    for (Clickable c: buttons) {
+      c.mReleased(ld);
+    }
   }
   
   public void show() {

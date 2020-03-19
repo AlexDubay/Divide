@@ -21,7 +21,7 @@ public class Poly implements Showable, Cloneable {
     for (Corner c: this.corners) {
       newP.addC(c.clone());
     }
-    return newP;
+    return newP; 
   }
   
   //return null if parity error;  return size() = 0 if no intersections
@@ -88,7 +88,7 @@ public class Poly implements Showable, Cloneable {
           minIndex = j;
           minD = d;
         }
-      } //<>//
+      }
       
       tmp = interArr.remove(minIndex);
       interArr.add(i, tmp);
@@ -113,7 +113,7 @@ public class Poly implements Showable, Cloneable {
       arr.set(i, arr.get(arr.size() - i - 1));
       arr.set(arr.size() - i - 1, tmp);
     }
-  } //<>//
+  }
   
   
   
@@ -121,7 +121,7 @@ public class Poly implements Showable, Cloneable {
   //@requires: detectIntersection == true
   //@returns: null if failed
   public ArrayList<Poly> cut(PVector inStart, PVector inEnd, ArrayList<Corner> doneInterArr) {
-    ArrayList<Corner> interArr = intersect(inStart, inEnd); //<>// //<>//
+    ArrayList<Corner> interArr = intersect(inStart, inEnd); //<>//
     if (interArr == null || !assureParity(interArr)) return null;
     
     //remove done intersections
@@ -169,7 +169,7 @@ public class Poly implements Showable, Cloneable {
     shapeArr.add(new Poly(tmp));
     
     //recurse
-    doneInterArr.add(c1); //<>//
+    doneInterArr.add(c1);
     doneInterArr.add(c2);
     ArrayList<Poly> tmpPolyArr = cut(inStart, inEnd, doneInterArr);
     if (tmpPolyArr != null) {
@@ -223,6 +223,7 @@ public class Poly implements Showable, Cloneable {
     }
   }
   
+  //REDO: see lvl 6
   //move poly perpendicular to cut axis
   public void moveAlongCut(PVector inStart, PVector inEnd) {
     PVector cutV = inEnd.copy();

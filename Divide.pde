@@ -1,4 +1,4 @@
-//TODO
+//TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 //implement menu tree
   //do this via: store active state in gameloop  DONE
@@ -11,18 +11,25 @@
 
 //design actual levels
   //make level maker DONE
-  //implement import levels function
+  //implement import levels function DONE
   
 //make scoreboard
-  //
+  //create saving system
+  //scoreboard possibly a txt file that is read into each level
 
 //draw cut line using object (passed to each lvl or lvlselect scene/state) that is also aliased in main game loop  DONE
 
-//implement START splash screen
+//implement START splash screen DONE
 
-//make buttons change image when pressed but not released
+//make buttons change image when pressed but not released DONE
 
-//LATER;  create saving system
+//reduce lag time after pressing play button
+
+//fix problems with moveAlongCut method in Poly
+  //main issue is with center method
+  
+//fix problems with Level load() method
+  //causes one extra empty poly to polys array
 
 //LATER;  create sidebar and popup screens
 
@@ -30,10 +37,9 @@
 
 LineDraw ld;
 Scene currentScene;
+BGStack lvlBG;
 
-final int MENUBUTTONSCALE = 100, NUMOFLEVELS = 20;
-
-Level[] levels = new Level[NUMOFLEVELS];
+final int MENUBUTTONSCALE = 100, NUMOFLEVELS = 7, NUMLOADED = 2;
 
 
 void setup() {
@@ -45,21 +51,15 @@ void setup() {
   
   //TODO: rescale MENUBUTTONSCALE based on screen size
   
-  //make/import polys~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  //tmp
-  Poly p = new Poly();
-  p.addC(new Corner(0, 0, 0));
-  p.addC(new Corner(100, 0, 0));
-  p.addC(new Corner(100, 100, 0));
-  p.addC(new Corner(0, 100, 0));
-  p.move(new PVector(width / 2 - 50, height * 0.2));
-  ArrayList<Poly> pArr = new ArrayList<Poly>();
-  pArr.add(p);
-  //endtmp
+  //initiate splash screen~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  background(255);
+  PImage splashI = loadImage("data\\Title.png");
+  imageMode(CENTER);
+  image(splashI, width / 2, height / 2);
   
   //Background stacks~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   BGStack menuBG = new BGStack();
-  BGStack lvlBG = new BGStack();
+  lvlBG = new BGStack();
   
   //import images~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   //backgrounds images
@@ -78,45 +78,40 @@ void setup() {
   
   Background levelBGI = new Background("data\\Background\\LevelBackground.png");
   lvlBG.addBG(levelBGI);
-  //remove
-  //PImage appMockup = loadImage("data\\Background\\appMockup.jpg");
   //buttons
   PImage playBI = loadImage("data\\Buttons\\Play.png");
   PImage BackBI = loadImage("data\\Buttons\\BackButton.png");
-  PImage resetBI = loadImage("data\\Buttons\\Reset.png");
-  PImage completedLevelBI = loadImage("data\\Buttons\\completedLevel.png");
-  PImage levelBI = loadImage("data\\Buttons\\level.png");
-  PImage lockedLevelBI = loadImage("data\\Buttons\\lockedLevel.png");
   
   //make Scenes~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Scene mainMenu = new Menu(menuBG);
   Scene lvlMenu = new Menu(lvlBG);
-  for (int i = 0; i < NUMOFLEVELS; i++) {
-    levels[i] = new Level(lvlBG, (ArrayList<Poly>)pArr.clone());
-  }
   
+  //make ScoreBoard~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Scoreboard scoreboard = new Scoreboard("data\\Score.txt");
   
   //make buttonPanels~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ButtonPanel lvlBP = new ButtonPanel(0,0,width,height);
   
   //make buttons~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Button playB = new Button(width / 2, (int)(height * .35), (2 * MENUBUTTONSCALE) * 2 / 3, (3 * MENUBUTTONSCALE) * 2 / 3, playBI, null);
-  Button toLvlMenuB = new Button(width / 3, height * 7 / 8, MENUBUTTONSCALE, MENUBUTTONSCALE, BackBI, null);
+  //mainMenu buttons
+  Button playB = new Button(width / 2, (int)(height * .35), (2 * MENUBUTTONSCALE) * 2 / 3, (3 * MENUBUTTONSCALE) * 2 / 3, playBI);
   
+  //lvlScreen buttons
   LvlButton[] lvlButtons = new LvlButton[NUMOFLEVELS];
-  ResetButton[] resetButtons = new ResetButton[NUMOFLEVELS];
+  //ResetButton[] resetButtons = new ResetButton[NUMOFLEVELS];
   for (int i = 0; i < NUMOFLEVELS; i++) {
-    lvlButtons[i] = new LvlButton(levelBI, null, i + 1);
-    resetButtons[i] = new ResetButton(width * 2 / 3, height * 7 / 8, MENUBUTTONSCALE, MENUBUTTONSCALE, resetBI, null);
+    lvlButtons[i] = new LvlButton(null, i + 1, "data\\levels\\Level" + (i + 1) + ".txt");
+    //DEBUG: change back to LOCKED~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    lvlButtons[i].setState(ButtonState.UNLOCKED);
+    //resetButtons[i] = new ResetButton(width * 2 / 3, height * 7 / 8, MENUBUTTONSCALE, MENUBUTTONSCALE, resetBI);
   }
+  lvlButtons[0].setState(ButtonState.UNLOCKED);
+  Button toMainMenuB = new Button(MENUBUTTONSCALE, (int)(height - MENUBUTTONSCALE), MENUBUTTONSCALE, MENUBUTTONSCALE, BackBI);
   
   //link buttons~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   playB.link(lvlMenu);
-  toLvlMenuB.link(lvlMenu);
-  for (int i = 0; i < NUMOFLEVELS; i++) {
-    lvlButtons[i].link(levels[i]);
-    resetButtons[i].link(levels[i]);
-  }
+  
+  toMainMenuB.link(mainMenu);
   
   //add buttons~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   mainMenu.addButton(playB);
@@ -126,14 +121,24 @@ void setup() {
   }
   lvlBP.resizePanel();
   lvlMenu.addButton(lvlBP);
+  lvlMenu.addButton(toMainMenuB);
   
-  for (int i = 0; i < NUMOFLEVELS; i++) {
-    levels[i].addButton(toLvlMenuB);
-    levels[i].addButton(resetButtons[i]);
+  //instantiate Loader
+  ArrayList<Clickable> cs = new ArrayList<Clickable>();
+  Button toLvlMenuB = new Button(width / 3, height * 7 / 8, MENUBUTTONSCALE, MENUBUTTONSCALE, BackBI);
+  toLvlMenuB.link(lvlMenu);
+  cs.add(toLvlMenuB);
+  Loader loader = new Loader(lvlBG, cs, NUMLOADED);
+  for (LvlButton b: lvlButtons) {
+    b.linkLoader(loader);
   }
 
   //instantiate LineDraw
   ld = new LineDraw();
+  ld.registerScene(mainMenu);
+  
+  //garbage collection
+  System.gc();
   
   //show currentScene
   currentScene = mainMenu;
@@ -146,7 +151,8 @@ void draw() {
   currentScene.update();
   currentScene.show();
   ld.show();
-  println(frameRate);
+  //REMOVE
+  //println(frameRate);
 }
 
 
@@ -154,24 +160,23 @@ void mousePressed() {
   int mx = mouseX, my = mouseY;
   //update the linedraw
   ld.mPressed(mx, my);
-  //update the currentScene
-  //currentScene.mPressed(ld);
+  //calls mPressed action on currentScene
+  currentScene.mPressed(ld);
 }
 
 void mouseDragged() {
   ld.mDragged(mouseX, mouseY);
 }
 
+
 void mouseReleased() {
-  //ld.mReleased(mouseX, mouseY);
-  PVector vec = ld.mReleased();
-  if (vec != null) {
-    Scene s = currentScene.click(ld);
-    if (s != null) {
-      //new scene has successfuly been loaded now
-      currentScene = s;
-      ld.setActive(currentScene.canCut());
-      
-    }
-  }
+  //update the linedraw and makes a cut if applicable
+  ld.mReleased(mouseX, mouseY);
+  //calls mReleased action on currentScene
+  currentScene.mReleased(ld);
+  //updates the linedraw
+  ld.release();
+  //updates the currentScene
+  currentScene = ld.getScene();
+  ld.setActive(currentScene.canCut());
 }
