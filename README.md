@@ -5,3 +5,6 @@ Divide is a phone app that is coded in Java using the Processing graphics librar
 A executable version will be uploaded shortly.
 
 Code written by: Alex Dubay ||  Graphics created by: Ian Ellsworth  @ianin3d
+
+~~~PROJECT APP PENDING APPROVAL~~~
+~~~RE-SALE AND RE-DISTRIBUTION NOT ALLOWED WITHOUT EXPRESS PERMISSION~~~
