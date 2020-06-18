@@ -27,12 +27,15 @@ public class LineDraw implements Showable {
     this.currentScene = s;
   }
   
+  public Scene getScene() {
+    return currentScene;
+  }
+  
   public void registerButton(Button b) {
     this.currentButton = b;
   }
   
-  //mousePressed
-  public void mPressed(int mx, int my) { //<>//
+  public void mPressed(int mx, int my) {
     this.start = new PVector(mx, my);
     this.end = new PVector(mx, my);
     if (this.active) this.drawing = true;
@@ -44,7 +47,25 @@ public class LineDraw implements Showable {
     }
   }
   
-  //remove
+  public void mReleased(int mx, int my) {
+    this.end = new PVector(mx, my);
+    //cut the poly if active
+    if (active) {
+      ((Level)currentScene).cut(start, end);
+      drawing = false;
+    }
+  }
+  
+  public void release() {
+    if (currentButton != null) {
+      currentButton.release();
+    }
+  }
+  
+  public void setCurrentB(Button b) {
+    currentButton = b;
+  }
+  
   public PVector getMouseStart() {
     assert this.start != null;
     return this.start;
@@ -52,15 +73,6 @@ public class LineDraw implements Showable {
   
   public PVector getMouseEnd() {
     assert this.end != null;
-    return this.end;
-  }
-  
-  public PVector mReleased() {
-    if (this.active) {
-      this.drawing = false;
-      assert this.currentScene != null: "error on linedraw lvl ref";
-      ((Level)this.currentScene).cut(this.start, this.end);
-    }
     return this.end;
   }
   

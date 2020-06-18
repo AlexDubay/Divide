@@ -3,18 +3,16 @@ public class ButtonPanel implements Clickable, Animatable {
   private ArrayList<Button> buttons;
   public int rows, cols, margins;
   //corner positions;
-  private int x1, y1, x2, y2;
+  private int x1, x2;
   //side length 
   private int buttonSize;
   private static final int DEFAULTBUTTONSIZE = 100, 
     DEFAULTMARGINS = 7;
   
   
-  public ButtonPanel(int x1, int y1, int x2, int y2) {
+  public ButtonPanel(int x1, int x2) {
     this.x1 = x1;
     this.x2 = x2;
-    this.y1 = y1;
-    this.y2 = y2;
     this.margins = 0;
     this.buttons = new ArrayList<Button>();
     this.buttonSize = DEFAULTBUTTONSIZE;
@@ -23,6 +21,10 @@ public class ButtonPanel implements Clickable, Animatable {
   
   public void addB(Button b) {
     this.buttons.add(b);
+  }
+  
+  public Button getButton(int n) {
+    return buttons.get(n);
   }
   
   public void setButtonSize(int size) {
@@ -53,30 +55,30 @@ public class ButtonPanel implements Clickable, Animatable {
     }
   }
   
-  public void mPressed(LineDraw ld) {
-    //TODO
-  }
   
-  public boolean isClicked(LineDraw ld) {
-    for (Button b: this.buttons) {
-      if (b.isClicked(ld)) {
+  //update Clickable's texture if mouse is pressed over @this
+  public boolean mPressed(LineDraw ld) {
+    for (Clickable c: buttons) {
+      if (c.mPressed(ld)) {
         return true;
       }
     }
     return false;
   }
   
-  public Scene pushB(LineDraw ld) {
-    for (Button b: this.buttons) {
-      if (b.isClicked(ld)) {
-        return b.pushB(ld);
+  //returns if the mouse was released over @this as well as update the Clickable
+  public boolean mReleased(LineDraw ld) {
+    for (Clickable c: buttons) {
+      if (c.mReleased(ld)) {
+        return true;
       }
     }
-    return null;
+    return false;
   }
   
+  //REMOVE
   public void update() {
-    //TODO: update buttons animation
+    
   }
   
   public void show() {
