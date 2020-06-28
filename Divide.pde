@@ -13,17 +13,17 @@
   //make level maker DONE
   //implement import levels function DONE
   
-//PRIORITY~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 //make scoreboard
   //create saving system
-  //scoreboard possibly a txt file that is read into each level
-  //Implement next level unlocking and auto next level button
+  //scoreboard possibly a txt file that is read into each level  DONE
+  //Implement next level unlocking and auto next level button  DONE
 
 //draw cut line using object (passed to each lvl or lvlselect scene/state) that is also aliased in main game loop  DONE
 
 //implement START splash screen DONE
 
-//make buttons change image when pressed but not released DONE
+//make buttons change image when pressed but not released  DONE
 
 //reduce lag time after pressing play button  DONE
 
@@ -31,10 +31,14 @@
   //main issue is with center method
   //possible fix: center of mass must always be inside the poly
   
-//fix problems with Level load() method
-  //causes one extra empty poly to polys array
+//fix problems with Level load() method  DONE
+  //causes one extra empty poly to polys array  DONE
   
 //EASY -- move clouds layer up as to not obscure could background layer
+
+//make new type of win screen button that also removes itself from levelButton stack once clicked
+
+//make lose popup
 
 //LATER;  create sidebar and popup screens
 
@@ -47,11 +51,11 @@ final int MENUBUTTONSCALE = 100, NUMOFLEVELS = 7, NUMLOADED = 2;
 
 
 void setup() {
-  size(450, 800, P2D); //refactor for andriod
+  //size(450, 800, P2D); //REMOVE for android
   
   ////android stuff
-  //fullScreen();
-  //orientation(PORTRAIT);
+  fullScreen();
+  orientation(PORTRAIT);
   
   //TODO: rescale MENUBUTTONSCALE based on screen size
   
@@ -97,9 +101,16 @@ void setup() {
   Scene lvlMenu = new Menu(lvlBG);
   
   //make levels
-  Scene[] lvls = new Level[NUMOFLEVELS];
+  Level[] lvls = new Level[NUMOFLEVELS];
   for (int i = 0; i < lvls.length; i++) {
     lvls[i] = new Level(lvlBG, "data\\Levels\\Level" + (i + 1) + ".txt", scoreboard);
+  }
+  
+  //instantiate LineDraw
+  ld = new LineDraw();
+  ld.registerScene(mainMenu);
+  for (Level l: lvls) {
+    l.registerLD(ld);
   }
   
   //make buttonPanels~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -118,13 +129,28 @@ void setup() {
   for (int i = 0; i < NUMOFLEVELS; i++) {
     lvlButtons[i] = new LvlButton(i + 1);
     //DEBUG: change back to LOCKED~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    lvlButtons[i].setState(ButtonState.UNLOCKED);
+    lvlButtons[i].setState(ButtonState.LOCKED);
     resetButtons[i] = new ResetButton(width * 2 / 3, height * 7 / 8, MENUBUTTONSCALE, MENUBUTTONSCALE, resetBI);
     resetButtons[i].link(lvls[i]);
     lvls[i].addButton(resetButtons[i]);
     lvls[i].addButton(toLvlMenuB);
     lvlButtons[i].link(lvls[i]);
   }
+  //register current lvlButton for each level
+  for (int i = 0; i < lvls.length; i++) {
+    lvls[i].registerButton(lvlButtons[i]);
+  }
+  
+  //register next levelButtons in each level
+  for (int i = 0; i < lvls.length - 1; i++) {
+    lvls[i].registerNextLvlB(lvlButtons[i + 1]);
+  }
+  
+  //make the win lose popup buttons
+  for (Level l: lvls) {
+    l.makeWLButton();
+  }
+  
   lvlButtons[0].setState(ButtonState.UNLOCKED);
   
   Button toMainMenuB = new Button(MENUBUTTONSCALE, (int)(height - MENUBUTTONSCALE), MENUBUTTONSCALE, MENUBUTTONSCALE, backBI);
@@ -148,9 +174,7 @@ void setup() {
     b.linkLoader(loader);
   }
 
-  //instantiate LineDraw
-  ld = new LineDraw();
-  ld.registerScene(mainMenu);
+  
   
   //garbage collection
   //REMOVE?
@@ -191,7 +215,7 @@ void mouseDragged() {
 void mouseReleased() {
   int mx = mouseX, my = mouseY;
   //update the linedraw and makes a cut if applicable
-  ld.mReleased(mx, my); //<>//
+  ld.mReleased(mx, my);
   //calls mReleased action on currentScene
   currentScene.mReleased(ld);
   //updates the linedraw

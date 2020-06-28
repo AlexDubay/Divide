@@ -9,12 +9,36 @@ public class Level extends Scene {
   
   private String filename;
   
+  public static final int NUMBERSIZE = 35;
+  private final PFont NUMFONT = createFont("data\\fonts\\DAYPBL__.ttf", NUMBERSIZE, true);
+  
+  private LvlButton nextLvlB;
+  private LineDraw ld;
+  //lvlButton that links to this
+  private LvlButton lb;
+  private WLButton wlButton;
+  private boolean popupActive = false;
+  
   //makes a new level with polygons imported from @filename
   //first line must be of the format: cuts,polyTarget
   public Level(BGStack img, String filename, Scoreboard sb) {
     super(img, true);
     this.filename = filename;
     this.sb = sb;
+    
+    
+  }
+  
+  public void registerLD(LineDraw ld) {
+    this.ld = ld;
+  }
+  
+  public void registerButton(LvlButton lb) {
+    this.lb = lb;
+  }
+  
+  public void makeWLButton() {
+    this.wlButton = new WLButton(loadImage("data\\Buttons\\Play.png"), loadImage("data\\Buttons\\Play.png"), ld, lb, nextLvlB);
   }
   
   public void unload() {
@@ -29,20 +53,24 @@ public class Level extends Scene {
     try {
       String line = in.readLine();
       readInputStart(line);
-      line = "-1";
+      
+      line = in.readLine();
       Poly p = new Poly();
-      while(line != null) {
-        if (line.equals("~")) {
-          this.polys.add(p);
-          p = new Poly();
-        } else if (line.equals("-1")) {
-          
-        } else {
-          p.addC(readInput(line));
-        }
+      if (!line.equals("END")) {
+        //begin first poly
         line = in.readLine();
+        while(!line.equals("END")) {
+          if (line.equals("~")) {
+            this.polys.add(p);
+            p = new Poly();
+          } else {
+            p.addC(readInput(line));
+          }
+          line = in.readLine();
+        }
+        //add last poly to polys
+        this.polys.add(p);
       }
-      this.polys.add(p);
       in.close();
     } catch(IOException e) {
       System.err.println(e.getMessage());
@@ -74,10 +102,9 @@ public class Level extends Scene {
     return new Corner(p[0], p[1], p[2]);
   }
   
-  //TODO: implement
-  //public void registerNextLvlB(LvlButton b) {
-  //  this.nextLvlB = b;
-  //}
+  public void registerNextLvlB(LvlButton b) {
+    this.nextLvlB = b;
+  }
   
   //cuts the scene and returns if a cut has been made
   public boolean cut(PVector start, PVector end) {
@@ -105,7 +132,6 @@ public class Level extends Scene {
     }
     if (madeCut) {
       cuts++;
-      println(polys.size());  //REMOVE
     }
     return madeCut;
   }
@@ -123,11 +149,30 @@ public class Level extends Scene {
     super.update();
     polyNum = polys.size();
     //update if won or lost
-    if (polyNum >= polyTarget) {
+    if (!popupActive && polyNum >= polyTarget) {
       //won
-    } else if (cuts >= cutsTarget) {
+      wlButton.win();
+      
+      
+      //REMOVE
+      //add to next lvl button
+      //Button tmpB = new Button(width / 2, height / 2, width, height, tmp);
+      //tmpB.link(nextLvlB.getLink());
+      //super.addButton(tmpB);
+      
+      ////update button states
+      //nextLvlB.setState(ButtonState.UNLOCKED);
+      //((Level)nextLvlB.getLink()).load();
+      //lb.setState(ButtonState.WON);
+      //REMOVE END
+    } else if (!popupActive && cuts >= cutsTarget) {
       //lost
+      wlButton.lose();
     }
+  }
+  
+  public void setPopupActive(boolean b) {
+    popupActive = b;
   }
   
   @Override
@@ -136,6 +181,21 @@ public class Level extends Scene {
     for (Poly p: this.polys) {
       p.show();
     }
+    
+    //number of cuts text
+    textFont(NUMFONT);
+    textAlign(LEFT, TOP);
+    stroke(255, 117, 16);
+    textSize(NUMBERSIZE);
+    text("CUTS: " + cuts + "/" + cutsTarget, 0, 0);
+    
+    //number of polys text
+    textFont(NUMFONT);
+    textAlign(RIGHT, TOP);
+    stroke(255, 117, 16);
+    textSize(NUMBERSIZE);
+    text(polyNum + "/" + polyTarget, width, 0);
+    
     this.showButtons();
   }
 }

@@ -10,7 +10,7 @@ public class Loader {
   }
   
   public void addLvl(Level l) {
-    if (!contains(l)) { //<>//
+    if (!contains(l)) {
       if (lvls[t] != null) lvls[t].unload();
       lvls[t] = l;
       t++;

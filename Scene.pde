@@ -14,6 +14,12 @@ public abstract class Scene implements Animatable {
     this.buttons.add(b);
   }
   
+  public void removeButton(Clickable b) {
+    if (buttons.contains(b)) {
+      buttons.remove(b);
+    }
+  }
+  
   public boolean canCut() {
     return this.canCut;
   }
@@ -30,15 +36,15 @@ public abstract class Scene implements Animatable {
   
   //updates the scene on action mouse pressed
   public void mPressed(LineDraw ld) {
-    for (Clickable c: buttons) {
-      if (c.mPressed(ld)) break;
+    for (int i = buttons.size() - 1; i >= 0; i--) {
+      if (buttons.get(i).mPressed(ld)) break;
     }
   }
   
   //updates the scene on action mouse released
   public void mReleased(LineDraw ld) {
-    for (Clickable c: buttons) {
-      c.mReleased(ld);
+    for (int i = buttons.size() - 1; i >= 0; i--) {
+      buttons.get(i).mReleased(ld);
     }
   }
   
