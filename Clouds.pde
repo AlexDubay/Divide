@@ -3,7 +3,7 @@ public class Clouds implements Animatable {
   private float t;
   private PImage p1, p2;
   private int w, h;
-  private static final float CLOUDSPEED = 0.4, ALPHAVALUE = 80;
+  private static final float CLOUDSPEED = 3.0, ALPHAVALUE = 80;
   
   public Clouds(PImage p1, PImage p2) {
     this.t = 0;

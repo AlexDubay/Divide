@@ -6,8 +6,8 @@ public class ButtonPanel implements Clickable, Animatable {
   private int x1, x2;
   //side length 
   private int buttonSize;
-  private static final int DEFAULTBUTTONSIZE = 100, 
-    DEFAULTMARGINS = 7;
+  private static final int DEFAULTBUTTONSIZE = 250, 
+    DEFAULTMARGINS = 40;
   
   
   public ButtonPanel(int x1, int x2) {

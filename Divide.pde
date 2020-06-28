@@ -1,5 +1,7 @@
 //TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+//pixel dim: 1080 x 2160
+
 //implement menu tree
   //do this via: store active state in gameloop  DONE
   //have buttons return new game state upon activation  DONE
@@ -36,18 +38,26 @@
   
 //EASY -- move clouds layer up as to not obscure could background layer
 
-//make new type of win screen button that also removes itself from levelButton stack once clicked
+//make new type of win screen button that also removes itself from levelButton stack once clicked  DONE
 
-//make lose popup
+//fix HUGE lag from win popup: possibly from blur??
 
-//LATER;  create sidebar and popup screens
+//make lose popup  DONE
+
+//PRIORITY~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//rescale all button sizes
+//TODO: remove poly factor and remake levels according to new size
+//downgrade png quality to reduce lag
+
+//LATER;  create sidebar and popup screens  DEPRECIATED
 
 //LATER; create animations between menus
 
 LineDraw ld;
 Scene currentScene;
 
-final int MENUBUTTONSCALE = 100, NUMOFLEVELS = 7, NUMLOADED = 2;
+final int NUMOFLEVELS = 7, NUMLOADED = 2;
+static int MENUBUTTONSCALE;
 
 
 void setup() {
@@ -58,11 +68,12 @@ void setup() {
   orientation(PORTRAIT);
   
   //TODO: rescale MENUBUTTONSCALE based on screen size
+  MENUBUTTONSCALE = (int)(width * 0.3);
   
   
   //initiate splash screen~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   background(255);
-  PImage splashI = loadImage("data\\Title.png");
+  PImage splashI = loadImage("Title.png");
   imageMode(CENTER);
   image(splashI, width / 2, height / 2);
   
@@ -72,29 +83,29 @@ void setup() {
   
   //import images~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   //backgrounds images
-  Background menuBGI = new Background("data\\Background\\BG.png");
+  Background menuBGI = new Background("BG.png");
   menuBG.addBG(menuBGI);
-  PImage c1 = loadImage("data\\Background\\Clouds1.png");
-  PImage c2 = loadImage("data\\Background\\Clouds2.png");
+  PImage c1 = loadImage("Clouds1.png");
+  PImage c2 = loadImage("Clouds2.png");
   Clouds clouds = new Clouds(c1, c2);
   menuBG.addAni(clouds);
-  Background groundCloudsBG = new Background("data\\Background\\BGClouds.png");
+  Background groundCloudsBG = new Background("BGClouds.png");
   menuBG.addBG(groundCloudsBG);
-  Background groundI = new Background("data\\Background\\Ground.png");
+  Background groundI = new Background("Ground.png");
   menuBG.addBG(groundI);
-  Background titleI = new Background("data\\Background\\Title.png");
+  Background titleI = new Background("Title.png");
   menuBG.addBG(titleI);
   
-  Background levelBGI = new Background("data\\Background\\LevelBackground.png");
+  Background levelBGI = new Background("LevelBackground.png");
   lvlBG.addBG(levelBGI);
   lvlBG.addAni(clouds);
   //buttons
-  PImage playBI = loadImage("data\\Buttons\\Play.png");
-  PImage backBI = loadImage("data\\Buttons\\BackButton.png");
-  PImage resetBI = loadImage("data\\Buttons\\Reset.png");
+  PImage playBI = loadImage("Play.png");
+  PImage backBI = loadImage("BackButton.png");
+  PImage resetBI = loadImage("Reset.png");
   
   //make ScoreBoard~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Scoreboard scoreboard = new Scoreboard("data\\Score.txt");
+  Scoreboard scoreboard = new Scoreboard("Score.txt");
   
   //make Scenes~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Scene mainMenu = new Menu(menuBG);
@@ -103,7 +114,7 @@ void setup() {
   //make levels
   Level[] lvls = new Level[NUMOFLEVELS];
   for (int i = 0; i < lvls.length; i++) {
-    lvls[i] = new Level(lvlBG, "data\\Levels\\Level" + (i + 1) + ".txt", scoreboard);
+    lvls[i] = new Level(lvlBG, "Level" + (i + 1) + ".txt", scoreboard);
   }
   
   //instantiate LineDraw
@@ -121,7 +132,7 @@ void setup() {
   Button playB = new Button(width / 2, (int)(height * .35), (2 * MENUBUTTONSCALE) * 2 / 3, (3 * MENUBUTTONSCALE) * 2 / 3, playBI);
   
   //lvlScreen and level buttons
-  Button toLvlMenuB = new Button(MENUBUTTONSCALE, (int)(height - MENUBUTTONSCALE), MENUBUTTONSCALE, MENUBUTTONSCALE, backBI);
+  Button toLvlMenuB = new Button(MENUBUTTONSCALE, (height - MENUBUTTONSCALE), MENUBUTTONSCALE, MENUBUTTONSCALE, backBI);
   toLvlMenuB.link(lvlMenu);
   
   LvlButton[] lvlButtons = new LvlButton[NUMOFLEVELS];
@@ -130,7 +141,7 @@ void setup() {
     lvlButtons[i] = new LvlButton(i + 1);
     //DEBUG: change back to LOCKED~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     lvlButtons[i].setState(ButtonState.LOCKED);
-    resetButtons[i] = new ResetButton(width * 2 / 3, height * 7 / 8, MENUBUTTONSCALE, MENUBUTTONSCALE, resetBI);
+    resetButtons[i] = new ResetButton(width - MENUBUTTONSCALE, height - MENUBUTTONSCALE, MENUBUTTONSCALE, MENUBUTTONSCALE, resetBI);
     resetButtons[i].link(lvls[i]);
     lvls[i].addButton(resetButtons[i]);
     lvls[i].addButton(toLvlMenuB);

@@ -9,8 +9,9 @@ public class Level extends Scene {
   
   private String filename;
   
-  public static final int NUMBERSIZE = 35;
-  private final PFont NUMFONT = createFont("data\\fonts\\DAYPBL__.ttf", NUMBERSIZE, true);
+  //TODO: remove poly factor and remake levels according to new size
+  public static final int NUMBERSIZE = 80, POLYFACTOR = 2;
+  private final PFont NUMFONT = createFont("DAYPBL__.ttf", NUMBERSIZE, true);
   
   private LvlButton nextLvlB;
   private LineDraw ld;
@@ -18,6 +19,8 @@ public class Level extends Scene {
   private LvlButton lb;
   private WLButton wlButton;
   private boolean popupActive = false;
+  
+  private static final int TEXTMARGIN = 100;
   
   //makes a new level with polygons imported from @filename
   //first line must be of the format: cuts,polyTarget
@@ -38,7 +41,7 @@ public class Level extends Scene {
   }
   
   public void makeWLButton() {
-    this.wlButton = new WLButton(loadImage("data\\Buttons\\Play.png"), loadImage("data\\Buttons\\Play.png"), ld, lb, nextLvlB);
+    this.wlButton = new WLButton(loadImage("Win.png"), loadImage("Lose.png"), ld, lb, nextLvlB);
   }
   
   public void unload() {
@@ -46,7 +49,7 @@ public class Level extends Scene {
     original = null;
   }
   
-  //TODO: check load method for bugs involving extra empty poly added to polys array
+  //loads polys into level
   public void load() {
     this.polys = new ArrayList<Poly>();
     BufferedReader in = createReader(filename);
@@ -99,7 +102,7 @@ public class Level extends Scene {
       s = s.substring(tmp + 1);
     }
     p[2] = Integer.parseInt(s);
-    return new Corner(p[0], p[1], p[2]);
+    return new Corner(p[0] * POLYFACTOR, p[1] * POLYFACTOR, p[2] * POLYFACTOR);
   }
   
   public void registerNextLvlB(LvlButton b) {
@@ -187,14 +190,14 @@ public class Level extends Scene {
     textAlign(LEFT, TOP);
     stroke(255, 117, 16);
     textSize(NUMBERSIZE);
-    text("CUTS: " + cuts + "/" + cutsTarget, 0, 0);
+    text("CUTS: " + cuts + "/" + cutsTarget, 0 + TEXTMARGIN, 0 + TEXTMARGIN);
     
     //number of polys text
     textFont(NUMFONT);
     textAlign(RIGHT, TOP);
     stroke(255, 117, 16);
     textSize(NUMBERSIZE);
-    text(polyNum + "/" + polyTarget, width, 0);
+    text(polyNum + "/" + polyTarget, width - TEXTMARGIN, 0 + TEXTMARGIN);
     
     this.showButtons();
   }

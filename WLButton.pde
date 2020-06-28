@@ -1,7 +1,7 @@
 public class WLButton extends Button {
   
   private boolean won = false;
-  private static final int BLURVALUE = 3;
+  private static final int BLURVALUE = 1;
   private LvlButton current, nextLvl;
   private LineDraw ld;
   private Level currentLvl;
@@ -30,7 +30,7 @@ public class WLButton extends Button {
     currentLvl.addButton(this);
   }
   
-  public void lose() { //<>//
+  public void lose() { //<>// //<>//
     currentLvl.setPopupActive(true);
     ld.setActive(false);
     won = false;

@@ -8,12 +8,12 @@ public final class LvlButton extends Button {
   
   private ButtonState state;
   private int lvlNum;
-  public static final int BUTTONSIZE = 100, NUMBERSIZE = 40;
-  private final PFont NUMFONT = createFont("data\\fonts\\couture-bldit.otf", NUMBERSIZE, true);
+  public static final int BUTTONSIZE = 100, NUMBERSIZE = 80;
+  private final PFont NUMFONT = createFont("couture-bldit.otf", NUMBERSIZE, true);
   private Loader loader;
-  private final PImage LOCKEDI = loadImage("data\\Buttons\\lockedLevel.png"),
-    UNLOCKEDI = loadImage("data\\Buttons\\level.png"),
-    WONI = loadImage("data\\Buttons\\completedLevel.png");
+  private final PImage LOCKEDI = loadImage("lockedLevel.png"),
+    UNLOCKEDI = loadImage("level.png"),
+    WONI = loadImage("completedLevel.png");
   private boolean active;
   
   public LvlButton(int lvlNum) {

@@ -121,7 +121,7 @@ public class Poly implements Showable, Cloneable {
   //@requires: detectIntersection == true
   //@returns: null if failed
   public ArrayList<Poly> cut(PVector inStart, PVector inEnd, ArrayList<Corner> doneInterArr) {
-    ArrayList<Corner> interArr = intersect(inStart, inEnd); //<>// //<>//
+    ArrayList<Corner> interArr = intersect(inStart, inEnd); //<>// //<>// //<>//
     if (interArr == null || !assureParity(interArr)) return null;
     
     //remove done intersections
